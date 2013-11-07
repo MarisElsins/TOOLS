@@ -26,8 +26,7 @@ if [ -z "$p_patch" ] && [ "$p_reset" != "yes" ] ; then
   echo "Not enough parameters.
   Usage:
   `basename $0` reset=yes  # Use to refresh the platform and language settings
-  `basename $0` patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If download=all is set all patches will be downloaded without user interaction
-"
+  `basename $0` patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If download=all is set all patches will be downloaded without user interaction"
   exit 1
 fi
 
@@ -41,7 +40,7 @@ echo
 # This part fetches the simple search form from mos and parses all Platform and Language codes
 if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   echo; echo Getting the Platform/Language list
-  wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass 'https://updates.oracle.com/Orion/SavedSearches/switch_to_simple' -O $TMP1 -q
+  wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
   echo "Available Platforms and Languages:"
   grep -A999 "<select name=plat_lang" $TMP1 | grep "^<option"| grep -v "\-\-\-" | awk -F "[\">]" '{print $2" - "$4}' > $TMP2
   cat $TMP2
@@ -51,6 +50,7 @@ if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   do
     grep "^$PLATLANG " $TMP2 | sed "s/ - /;/g" >> $CFG
   done
+  rm $TMP2
 fi
 
 # Iterate patches one by one
@@ -65,7 +65,7 @@ do
     echo
     echo "Getting patch $pp_patch for \"${PLDESC}\""
 
-    wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass 'https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}' -O $TMP1 -q
+    wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
     rm $TMP1
 
@@ -87,7 +87,7 @@ do
       for URL in $(cat $TMP2 | sed -n "${DownList}p")
       do
         fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
-        wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass '$URL' -O $fname -q
+        wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "$URL" -O $fname -q
         echo "$fname completed with status: $?"
       done
       rm $TMP2
