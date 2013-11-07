@@ -90,9 +90,9 @@ do
         wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "$URL" -O $fname -q
         echo "$fname completed with status: $?"
       done
-      rm $TMP2
     else
       echo "no patch available"
     fi
+    rm $TMP2
   done
 done
