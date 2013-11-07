@@ -1,3 +1,11 @@
+# Maris Elsins / Pythian / 2013
+# Source: https://github.com/MarisElsins/TOOLS/blob/master/Shell/getMOSPatch.sh
+# Inspired by John Piwowar's work: http://only4left.jpiwowar.com/2009/02/retrieving-oracle-patches-with-wget/
+# Usage:
+# getMOSPatch.sh reset=yes  # Use to refresh the platform and language settings
+# getMOSPatch.sh patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If "download=all" is set all patches will be downloaded without user interaction
+# v1.0 Initial version
+
 # exit on the first error
 set -e
 
