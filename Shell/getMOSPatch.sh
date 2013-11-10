@@ -3,7 +3,7 @@
 # Inspired by John Piwowar's work: http://only4left.jpiwowar.com/2009/02/retrieving-oracle-patches-with-wget/
 # Usage:
 # getMOSPatch.sh reset=yes  # Use to refresh the platform and language settings
-# getMOSPatch.sh patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If "download=all" is set all patches will be downloaded without user interaction
+# getMOSPatch.sh patch=patchnum_1[,patchnum_n]* [download=all] [regexp=...]# Use to download one or more patches. If "download=all" is set all patches will be downloaded without user interaction, you can also define regular expressen by passing regexp to filter the patch filenames.
 # v1.0 Initial version
 
 # exit on the first error
@@ -53,6 +53,10 @@ if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   rm $TMP2
 fi
 
+if [ -z "$p_regexp" ] ; then
+  p_regexp=".*"
+fi
+
 # Iterate patches one by one
 for pp_patch in $(echo ${p_patch} | sed "s/,/ /g" | xargs -n 1 echo)
 do
@@ -66,7 +70,7 @@ do
     echo "Getting patch $pp_patch for \"${PLDESC}\""
 
     wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
-    grep "Download/process_form" $TMP1 | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
+    grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
     rm $TMP1
 
     if [ `cat $TMP2 | wc -l` -gt 0 ] ; then
