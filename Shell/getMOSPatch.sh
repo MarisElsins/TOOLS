@@ -91,6 +91,7 @@ do
       for URL in $(cat $TMP2 | sed -n "${DownList}p")
       do
         fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
+        echo "Downloading file $fname ..."
         wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "$URL" -O $fname -q
         echo "$fname completed with status: $?"
       done
