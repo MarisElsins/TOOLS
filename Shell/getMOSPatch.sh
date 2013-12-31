@@ -35,16 +35,19 @@ fi
 [[ $mosUser ]] || read -p "Oracle Support Userid: " mosUser;
 [[ $mosPass ]] || read -sp "Oracle Support Password: " mosPass;
 echo
-echo "http-password=$mosPass" >> ~/.wgetrc
+echo "user=$mosUser" >> ~/.wgetrc
+echo "password=$mosPass" >> ~/.wgetrc
 set +e
-wget --save-cookies=$COOK --keep-session-cookies --no-check-certificate --http-user $mosUser "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
+wget --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
 if [ $? -ne 0 ] ; then
   cat $TMP2
-  sed -i "/http-password/d" ~/.wgetrc
+  sed -i"" '/^user=/d' ~/.wgetrc
+  sed -i"" '/^password=/d' ~/.wgetrc
   exit 1
 fi
 set -e
-sed -i "/http-password/d" ~/.wgetrc
+  sed -i"" '/^user=/d' ~/.wgetrc
+  sed -i"" '/^password=/d' ~/.wgetrc
 rm $TMP2 $TMP1 >/dev/null 2>&1
 
 # If we run the script the first time we need to collect Language and Platform settings.
