@@ -13,8 +13,9 @@ set -e
 PREF=`basename $0`
 CD=`dirname $0`
 CFG=${CD}/.${PREF}.cfg
-TMP1=${PREF}.tmp1
-TMP2=${PREF}.tmp2
+TMP1=${CD}/.${PREF}.tmp1
+TMP2=${CD}/.${PREF}.tmp2
+COOK=${CD}/.${PREF}.cookies
 
 # Processing the arguments by setting the respective variables
 # all arguments are passed to the shell scripts in form argname=argvalue
@@ -34,13 +35,29 @@ fi
 [[ $mosUser ]] || read -p "Oracle Support Userid: " mosUser;
 [[ $mosPass ]] || read -sp "Oracle Support Password: " mosPass;
 echo
+chmod 600 ~/.wgetrc
+perl -pi -e 'if(/^user=/){undef $_}' ~/.wgetrc
+perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
+echo "user=$mosUser" >> ~/.wgetrc
+echo "password=$mosPass" >> ~/.wgetrc
+set +e
+wget --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
+RESULT=$?
+perl -pi -e 'if(/^user=/){undef $_}' ~/.wgetrc
+perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
+if [ ${RESULT} -ne 0 ] ; then
+  cat $TMP2
+  exit 1
+fi
+set -e
+rm $TMP2 $TMP1 >/dev/null 2>&1
 
 # If we run the script the first time we need to collect Language and Platform settings.
 # This part also executes if reset=yes
 # This part fetches the simple search form from mos and parses all Platform and Language codes
 if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   echo; echo Getting the Platform/Language list
-  wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
+  wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
   echo "Available Platforms and Languages:"
   grep -A999 "<select name=plat_lang" $TMP1 | grep "^<option"| grep -v "\-\-\-" | awk -F "[\">]" '{print $2" - "$4}' > $TMP2
   cat $TMP2
@@ -69,7 +86,7 @@ do
     echo
     echo "Getting patch $pp_patch for \"${PLDESC}\""
 
-    wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
+    wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
     rm $TMP1
 
@@ -92,7 +109,7 @@ do
       do
         fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
         echo "Downloading file $fname ..."
-        wget --no-check-certificate --http-user $mosUser --http-passwd $mosPass "$URL" -O $fname -q
+        wget --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
         echo "$fname completed with status: $?"
       done
     else
@@ -101,3 +118,4 @@ do
     rm $TMP2
   done
 done
+rm $COOK >/dev/null 2>&1
