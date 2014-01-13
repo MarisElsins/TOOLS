@@ -35,6 +35,7 @@ fi
 [[ $mosUser ]] || read -p "Oracle Support Userid: " mosUser;
 [[ $mosPass ]] || read -sp "Oracle Support Password: " mosPass;
 echo
+touch ~/.wgetrc
 chmod 600 ~/.wgetrc
 perl -pi -e 'if(/^user=/){undef $_}' ~/.wgetrc
 perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
