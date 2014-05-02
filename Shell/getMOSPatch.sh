@@ -42,7 +42,7 @@ perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
 echo "user=$mosUser" >> ~/.wgetrc
 echo "password=$mosPass" >> ~/.wgetrc
 set +e
-wget --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
+wget --secure-protocol=TLSv1 --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
 RESULT=$?
 perl -pi -e 'if(/^user=/){undef $_}' ~/.wgetrc
 perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
@@ -58,7 +58,7 @@ rm $TMP2 $TMP1 >/dev/null 2>&1
 # This part fetches the simple search form from mos and parses all Platform and Language codes
 if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   echo; echo Getting the Platform/Language list
-  wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
+  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
   echo "Available Platforms and Languages:"
   grep -A999 "<select name=plat_lang" $TMP1 | grep "^<option"| grep -v "\-\-\-" | awk -F "[\">]" '{print $2" - "$4}' > $TMP2
   cat $TMP2
@@ -87,7 +87,7 @@ do
     echo
     echo "Getting patch $pp_patch for \"${PLDESC}\""
 
-    wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
+    wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
     rm $TMP1
 
@@ -110,7 +110,7 @@ do
       do
         fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
         echo "Downloading file $fname ..."
-        wget --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
+        wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
         echo "$fname completed with status: $?"
       done
     else
