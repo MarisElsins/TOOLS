@@ -15,6 +15,7 @@ CD=`dirname $0`
 CFG=${CD}/.${PREF}.cfg
 TMP1=${CD}/.${PREF}.tmp1
 TMP2=${CD}/.${PREF}.tmp2
+TMP3=${CD}/.${PREF}.tmp3
 COOK=${CD}/.${PREF}.cookies
 
 # Processing the arguments by setting the respective variables
@@ -50,8 +51,9 @@ if [ ${RESULT} -ne 0 ] ; then
   cat $TMP2
   exit 1
 fi
+
+rm $TMP2 $TMP1 $TMP3 >/dev/null 2>&1
 set -e
-rm $TMP2 $TMP1 >/dev/null 2>&1
 
 # If we run the script the first time we need to collect Language and Platform settings.
 # This part also executes if reset=yes
@@ -85,7 +87,7 @@ do
     PLATLANG=`echo $PL | awk -F";" '{print $1}'`
     PLDESC=`echo $PL | awk -F";" '{print $2}'`
     echo
-    echo "Getting patch $pp_patch for \"${PLDESC}\""
+    echo "Getting list of files for patch $pp_patch for \"${PLDESC}\""
 
     wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
@@ -105,18 +107,23 @@ do
         fi
         set -
       fi
-
-      for URL in $(cat $TMP2 | sed -n "${DownList}p")
-      do
-        fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
-        echo "Downloading file $fname ..."
-        wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
-        echo "$fname completed with status: $?"
-      done
+      cat $TMP2 | sed -n "${DownList}p" >> $TMP3
     else
       echo "no patch available"
     fi
     rm $TMP2
   done
 done
+
+echo
+echo "Downloading the patches:"
+for URL in $(cat $TMP3)
+do
+  fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
+  echo "Downloading file $fname ..."
+##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
+  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
+  echo "$fname completed with status: $?"
+done
+rm $TMP3
 rm $COOK >/dev/null 2>&1
