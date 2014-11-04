@@ -63,7 +63,7 @@ rm $TMP2 $TMP1 $TMP3 >/dev/null 2>&1
 set -e
 
 # If we run the script the first time we need to collect Language and Platform settings.
-# This part also executes if reset=yes of file is empty.
+# This part also executes if reset=yes or if file is empty.
 # This part fetches the simple search form from mos and parses all Platform and Language codes
 if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] || [ "`file -b $CFG`"  == "empty" ]; then
   echo; echo Getting the Platform/Language list
