@@ -120,10 +120,26 @@ echo "Downloading the patches:"
 for URL in $(cat $TMP3)
 do
   fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
+  fname_=${fname%.zip}
   echo "Downloading file $fname ..."
 ##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
   curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
   echo "$fname completed with status: $?"
+
+## download readme and rename to html or txt
+  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
+  if [ -f $fname_.readme ]; then
+    if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
+      mv $fname_.readme $fname_.html
+    else
+      mv $fname_.readme $fname_.txt
+    fi
+  fi
+
+## download xml
+  curl -b $COOK -c $COOK --tlsv1 --insecure --output ${fname%.zip}.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
+
 done
+
 rm $TMP3
 rm $COOK >/dev/null 2>&1
