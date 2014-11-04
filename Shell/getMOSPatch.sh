@@ -121,12 +121,21 @@ for URL in $(cat $TMP3)
 do
   fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
   fname_=${fname%.zip}
+
+  echo
   echo "Downloading file $fname ..."
-##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
-  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
-  echo "$fname completed with status: $?"
+  if [ $p_skip ] && [ -f $fname ]; then
+    ls -l $fname
+    echo "file $fname found,  skipping"
+  else
+    ##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
+    curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL" ;
+    echo "$fname completed with status: $?"
+  fi
 
 ## download readme and rename to html or txt
+  echo
+  echo "Downloading readme file ..."
   curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
   if [ -f $fname_.readme ]; then
     if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
@@ -137,6 +146,8 @@ do
   fi
 
 ## download xml
+  echo
+  echo "Downloading xml file ..."
   curl -b $COOK -c $COOK --tlsv1 --insecure --output ${fname%.zip}.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
 
 done
