@@ -32,6 +32,13 @@ if [ -z "$p_patch" ] && [ "$p_reset" != "yes" ] ; then
   exit 1
 fi
 
+# change into p_destination if defined, so we can run this from crontab or from other script
+if [ $p_destination ]; then
+  echo "changing directory to $p_destination"
+  pushd $p_destination >/dev/null 2>&1
+  UNPUSHD="$?"
+fi
+
 # Reading the MOS user credentials. Set environment variables mosUser and mosPass if you want to skip this.
 [[ $mosUser ]] || read -p "Oracle Support Userid: " mosUser;
 [[ $mosPass ]] || read -sp "Oracle Support Password: " mosPass;
@@ -56,9 +63,9 @@ rm $TMP2 $TMP1 $TMP3 >/dev/null 2>&1
 set -e
 
 # If we run the script the first time we need to collect Language and Platform settings.
-# This part also executes if reset=yes
+# This part also executes if reset=yes or if file is empty.
 # This part fetches the simple search form from mos and parses all Platform and Language codes
-if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
+if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] || [ "`file -b $CFG`"  == "empty" ]; then
   echo; echo Getting the Platform/Language list
   wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
   echo "Available Platforms and Languages:"
@@ -120,10 +127,42 @@ echo "Downloading the patches:"
 for URL in $(cat $TMP3)
 do
   fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
+  fname_=${fname%.zip}
+
+  echo
   echo "Downloading file $fname ..."
-##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
-  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
-  echo "$fname completed with status: $?"
+  if [ $p_skip ] && [ -f $fname ]; then
+    ls -l $fname
+    echo "file $fname found,  skipping"
+  else
+    ##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
+    curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL" ;
+    echo "$fname completed with status: $?"
+  fi
+
+## download readme and rename to html or txt
+  echo
+  echo "Downloading readme file ..."
+  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
+  if [ -f $fname_.readme ]; then
+    if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
+      mv $fname_.readme $fname_.html
+    else
+      mv $fname_.readme $fname_.txt
+    fi
+  fi
+
+## download xml
+  echo
+  echo "Downloading xml file ..."
+  curl -b $COOK -c $COOK --tlsv1 --insecure --output ${fname%.zip}.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
+
 done
+
+#leave the pushd if defined, running popd
+if [ $UNPUSHD ]; then
+  popd >/dev/null 2>&1
+fi
+
 rm $TMP3
 rm $COOK >/dev/null 2>&1
