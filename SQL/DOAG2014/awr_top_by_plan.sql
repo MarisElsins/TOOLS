@@ -32,16 +32,16 @@ select plan_hash_value,
     decode(count(unique(force_matching_signature)),1,max(force_matching_signature),count(unique(force_matching_signature))) diff_fms,
     decode(count(unique(sql_id)),1,max(sql_id),count(unique(sql_id))) diff_sqlid,
     sum(hss.executions_delta) executions,
-    round(sum(decode(hss.executions_delta,0,0,hss.elapsed_time_delta))/1000000,3) elapsed_time_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.cpu_time_delta))/1000000,3) cpu_time_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.iowait_delta))/1000000,3) iowait_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.clwait_delta))/1000000,3) clwait_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.apwait_delta))/1000000,3) apwait_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.ccwait_delta))/1000000,3) ccwait_s,
-    round(sum(decode(hss.executions_delta,0,0,hss.rows_processed_delta)),3) rows_processed,
-    round(sum(decode(hss.executions_delta,0,0,hss.buffer_gets_delta)),3) buffer_gets,
-    round(sum(decode(hss.executions_delta,0,0,hss.disk_reads_delta)),3) disk_reads,
-    round(sum(decode(hss.executions_delta,0,0,hss.direct_writes_delta)),3) direct_writes
+    round(sum(hss.elapsed_time_delta)/1000000,3) elapsed_time_s,
+    round(sum(hss.cpu_time_delta)/1000000,3) cpu_time_s,
+    round(sum(hss.iowait_delta)/1000000,3) iowait_s,
+    round(sum(hss.clwait_delta)/1000000,3) clwait_s,
+    round(sum(hss.apwait_delta)/1000000,3) apwait_s,
+    round(sum(hss.ccwait_delta)/1000000,3) ccwait_s,
+    round(sum(hss.rows_processed_delta),3) rows_processed,
+    round(sum(hss.buffer_gets_delta),3) buffer_gets,
+    round(sum(hss.disk_reads_delta),3) disk_reads,
+    round(sum(hss.direct_writes_delta),3) direct_writes
 from dba_hist_sqlstat hss, dba_hist_snapshot hs
 where hss.snap_id=hs.snap_id
     and hs.begin_interval_time>=trunc(sysdate)-&days_history+1

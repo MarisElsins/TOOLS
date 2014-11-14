@@ -5,6 +5,7 @@
 # getMOSPatch.sh reset=yes  # Use to refresh the platform and language settings
 # getMOSPatch.sh patch=patchnum_1[,patchnum_n]* [download=all] [regexp=...]# Use to download one or more patches. If "download=all" is set all patches will be downloaded without user interaction, you can also define regular expressen by passing regexp to filter the patch filenames.
 # v1.0 Initial version
+# v1.1 Added support for multipart patches, previously these were simply ignored.
 
 # exit on the first error
 set -e
@@ -70,7 +71,8 @@ if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   do
     grep "^$PLATLANG " $TMP2 | sed "s/ - /;/g" >> $CFG
   done
-  rm $TMP2
+  echo Configuration saved
+  rm $TMP1 $TMP2 >/dev/null 2>&1
 fi
 
 if [ -z "$p_regexp" ] ; then
@@ -91,7 +93,13 @@ do
 
     wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
-    rm $TMP1
+    grep "javascript:showDetails(\"/Orion/PatchDetails/process_form" $TMP1 | sed 's/ //g' | sed "s/.*href='javascript:showDetails(\"//g" | sed "s/\".*//g" | while read LINE
+      do
+        wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/${LINE}" -O $TMP1 -q
+        grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" >> $TMP2
+      done
+
+    rm $TMP1 >/dev/null 2>&1
 
     if [ `cat $TMP2 | wc -l` -gt 0 ] ; then
       if [ `cat $TMP2 | wc -l` -eq 1 ] ; then
@@ -111,19 +119,20 @@ do
     else
       echo "no patch available"
     fi
-    rm $TMP2
+    rm $TMP2 >/dev/null 2>&1
   done
 done
 
-echo
-echo "Downloading the patches:"
-for URL in $(cat $TMP3)
-do
-  fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
-  echo "Downloading file $fname ..."
-##  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "$URL" -O $fname -q
-  curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
-  echo "$fname completed with status: $?"
-done
-rm $TMP3
+if [ ! -z ${p_patch} ] ; then
+  echo
+  echo "Downloading the patches:"
+  for URL in $(cat $TMP3)
+  do
+    fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
+    echo "Downloading file $fname ..."
+    curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
+    echo "$fname completed with status: $?"
+  done
+  rm $TMP3 >/dev/null 2>&1
+fi
 rm $COOK >/dev/null 2>&1
