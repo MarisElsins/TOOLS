@@ -10,7 +10,6 @@ def sort_col_nr="&3"
 def top_n="&4"
 col inst for 9999
 col time for a19
-col force_matching_signature for 99999999999999999999
 col executions for 9999999999
 col rows_processed for 999999999999.999
 col elapsed_time_s for 9999999.999
@@ -19,8 +18,6 @@ col iowait_s for 9999999.999
 col clwait_s for 9999999.999
 col apwait_s for 9999999.999
 col ccwait_s for 9999999.999
-col plsexec_time_s for 9999999.999
-col javexec_time_s for 9999999.999
 col buffer_gets for 9999999999999999
 col disk_reads for 9999999999999999
 col direct_writes for 9999999999999999

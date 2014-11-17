@@ -7,20 +7,20 @@ col sql_length for 9999999999
 set echo on
 alter session set container = sample;
 
--- Let's see hwo sorting by elapsed time looks when we affregate by FORCE_MATCHING_SIGNATURE
+-- Let's see how sorting by elapsed time looks when we aggregate by FORCE_MATCHING_SIGNATURE
 pause
 
 -- Look at this crazy script!
 !cat awr_top_by_fms_snaps.sql
 pause
 
-@awr_top_by_fms_snaps.sql 24 50 5 40
+@awr_top_by_fms_snaps.sql 25 50 5 10
 set echo on
 pause
 
 -- What is FMS=0?
 pause
-@awr_top_by_fms_detail_snaps.sql 24 50 5 10 0
+@awr_top_by_fms_detail_snaps.sql 25 50 5 15 0
 set echo on
 pause
 
@@ -35,7 +35,7 @@ pause
 
 -- Let's take a closer look at these 999 queries in the TOP 3rd place.
 pause
-@awr_top_by_fms_detail_snaps.sql 24 50 5 40 5985318870031566873
+@awr_top_by_fms_detail_snaps.sql 25 50 5 15 5985318870031566873
 set echo on
 pause
 

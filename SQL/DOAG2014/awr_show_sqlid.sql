@@ -1,6 +1,5 @@
 set ver off pages 50000 lines 32000 tab off long 9999999 timing off echo off
 col PROGRAM for a30
-col PROGRAM for a30
 col MODULE for a30
 col ACTION for a30
 col CLIENT_ID for a30
@@ -14,7 +13,8 @@ select sql_id, program, module, action, client_id, count(*) from dba_hist_active
 set pages 0
 col sql_text for a32000
 
-prompt ### The Statement:
+prompt ### The Statement (DBA_HIST_SQLTEXT):
 select sql_text from dba_hist_sqltext where sql_id='&sql_Id' and rownum=1;
 
 set lines 238
+

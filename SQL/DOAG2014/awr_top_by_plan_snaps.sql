@@ -7,9 +7,6 @@ def snap_id_from="&1"
 def snap_id_to="&2"
 def sort_col_nr="&3"
 def top_n="&4"
-col inst for 9999
-col time for a19
-col force_matching_signature for 99999999999999999999
 col executions for 9999999999
 col rows_processed for 99999999999
 col elapsed_time_s for 9999999.999
@@ -24,9 +21,6 @@ col direct_writes for 9999999999999999
 col diff_sqlid for a13
 col diff_plan for a10
 col diff_fms for a20
-
-
-BREAK ON inst SKIP 1
 
 select * from (
 select to_char(plan_hash_value) diff_plan,
