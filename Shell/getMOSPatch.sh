@@ -37,6 +37,7 @@ fi
 # change into p_destination if defined, so we can run this from crontab or from other script
 if [ $p_destination ]; then
   echo "changing directory to $p_destination"
+  [ -d $p_destination ] || mkdir -p $p_destination
   pushd $p_destination >/dev/null 2>&1
   UNPUSHD="$?"
 fi
