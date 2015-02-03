@@ -10,15 +10,6 @@
 # exit on the first error
 set -e
 
-# Setting some variables for the files I'll operati with
-PREF=`basename $0`
-CD=`dirname $0`
-CFG=${CD}/.${PREF}.cfg
-TMP1=${CD}/.${PREF}.tmp1
-TMP2=${CD}/.${PREF}.tmp2
-TMP3=${CD}/.${PREF}.tmp3
-COOK=${CD}/.${PREF}.cookies
-
 # Processing the arguments by setting the respective variables
 # all arguments are passed to the shell scripts in form argname=argvalue
 # This command sets the following variables for each argument: p_argname=argvalue
@@ -41,6 +32,15 @@ if [ $p_destination ]; then
   pushd $p_destination >/dev/null 2>&1
   UNPUSHD="$?"
 fi
+
+# Setting some variables for the files I'll operati with
+PREF=`basename $0`
+CD=`dirname $0`
+CFG=${CD}/.${PREF}.cfg
+TMP1=${CD}/.${PREF}.tmp1
+TMP2=${CD}/.${PREF}.tmp2
+TMP3=${CD}/.${PREF}.tmp3
+COOK=${CD}/.${PREF}.cookies
 
 # Reading the MOS user credentials. Set environment variables mosUser and mosPass if you want to skip this.
 [[ $mosUser ]] || read -p "Oracle Support Userid: " mosUser;
@@ -183,9 +183,9 @@ if [ ! -z ${p_patch} ] ; then
   rm $TMP3 >/dev/null 2>&1
 fi
 
+rm $COOK >/dev/null 2>&1
+
 #leave the pushd if defined, running popd
 if [ $UNPUSHD ]; then
   popd >/dev/null 2>&1
 fi
-
-rm $COOK >/dev/null 2>&1
