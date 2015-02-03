@@ -29,8 +29,16 @@ if [ -z "$p_patch" ] && [ "$p_reset" != "yes" ] ; then
   echo "Not enough parameters.
   Usage:
   `basename $0` reset=yes  # Use to refresh the platform and language settings
-  `basename $0` patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If download=all is set all patches will be downloaded without user interaction"
+  `basename $0` patch=patchnum_1[,patchnum_n]* [download=all] # Use to download one or more patches. If download=all is set all patches will be downloaded without user interaction
+  `basename $0` patch=patchnum_1[,patchnum_n]* [download=all] [readme=yes] [xml=yes] [destination=</path>]"
   exit 1
+fi
+
+# change into p_destination if defined, so we can run this from crontab or from other script
+if [ $p_destination ]; then
+  echo "changing directory to $p_destination"
+  pushd $p_destination >/dev/null 2>&1
+  UNPUSHD="$?"
 fi
 
 # Reading the MOS user credentials. Set environment variables mosUser and mosPass if you want to skip this.
@@ -129,10 +137,59 @@ if [ ! -z ${p_patch} ] ; then
   for URL in $(cat $TMP3)
   do
     fname=`echo ${URL} | awk -F"=" '{print $NF;}' | sed "s/[?&]//g"`
-    echo "Downloading file $fname ..."
-    curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
-    echo "$fname completed with status: $?"
+    
+    #check if file is a healthy zip, delete if not
+    if [ -f $fname ]; then
+      unzip -t $fname &>/dev/null || rm $fname
+    fi
+    
+    #curl -R set timestamp of the file to source
+    #curl -z <file> check if file is newer than what is available on the server
+    if [ -f $fname ]; then
+      echo "Note: File $fname exist" ;
+      echo "Checking if file $fname has changed on server ..." ;
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $fname --output $fname -L "$URL"
+      echo "$fname completed with status: $?"
+    else
+      echo "Downloading file $fname ..."
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
+      echo "$fname completed with status: $?"
+    fi
+    
+    fname_=${fname%.zip}
+    ## download readme and rename to html or txt
+    if [ $p_readme ] && [ $p_readme == "yes" ]; then
+      if [ -f $fname_.txt ]; then
+        current="$fname_.txt"
+      else
+        current="$fname_.html"
+      fi
+      echo
+      echo "Downloading readme file ..."
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $current --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
+      if [ -f $fname_.readme ]; then
+        if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
+          mv $fname_.readme $fname_.html
+        else
+          mv $fname_.readme $fname_.txt
+        fi
+      fi
+    fi
+
+    ## download xml
+    if [ $p_xml ] && [ $p_xml == "yes" ]; then
+      echo
+      echo "Downloading xml file ..."
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $fname_.xml --output $fname_.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
+    fi
+    
   done
   rm $TMP3 >/dev/null 2>&1
 fi
+
+#leave the pushd if defined, running popd
+if [ $UNPUSHD ]; then
+  popd >/dev/null 2>&1
+fi
+
 rm $COOK >/dev/null 2>&1
