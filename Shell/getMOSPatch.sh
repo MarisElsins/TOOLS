@@ -160,14 +160,9 @@ if [ ! -z ${p_patch} ] ; then
     fname_=${fname%.zip}
     ## download readme and rename to html or txt
     if [ $p_readme ] && [ $p_readme == "yes" ]; then
-      if [ -f $fname_.txt ]; then
-        current="$fname_.txt"
-      else
-        current="$fname_.html"
-      fi
       echo
       echo "Downloading readme file ..."
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $current --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
       if [ -f $fname_.readme ]; then
         if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
           mv $fname_.readme $fname_.html
@@ -181,7 +176,7 @@ if [ ! -z ${p_patch} ] ; then
     if [ $p_xml ] && [ $p_xml == "yes" ]; then
       echo
       echo "Downloading xml file ..."
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $fname_.xml --output $fname_.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
+      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
     fi
     
   done
