@@ -46,3 +46,4 @@ where hss.snap_id=hs.snap_id
 group by sql_id
 order by &sort_col_nr desc nulls last)
 where rownum<=&top_n;
+
