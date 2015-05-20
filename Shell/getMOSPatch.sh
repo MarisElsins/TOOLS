@@ -106,6 +106,7 @@ do
       done
 
 rm $TMP1 >/dev/null 2>&1
+> $TMP3
 
     if [ `cat $TMP2 | wc -l` -gt 0 ] ; then
       if [ `cat $TMP2 | wc -l` -eq 1 ] && [ $protpatches -eq 0 ] ; then
@@ -122,6 +123,8 @@ rm $TMP1 >/dev/null 2>&1
         set -
       fi
       cat $TMP2 | sed -n "${DownList}p" >> $TMP3
+      echo "Files to download:"
+      cat $TMP2  | sed -n "${DownList}p" | awk -F"=" '{print $NF}' | sed "s/[?&]//g" | sed "s/^/  /g"
     else
       echo "no patch available"
     fi
