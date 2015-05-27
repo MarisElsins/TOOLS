@@ -107,8 +107,8 @@ do
 
 rm $TMP1 >/dev/null 2>&1
 
-    if [ `wc -l $TMP2` -gt 0 ] ; then
-      if [ `wc -l $TMP2` -eq 1 ] && [ $protpatches -eq 0 ] ; then
+    if [ `cat $TMP2 | wc -l` -gt 0 ] ; then
+      if [ `cat $TMP2 | wc -l` -eq 1 ] && [ $protpatches -eq 0 ] ; then
         DownList="1"
       else
         set +
