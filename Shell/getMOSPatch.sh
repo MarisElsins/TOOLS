@@ -132,7 +132,7 @@ touch $TMP3
   done
 done
 
-if [ ! -z ${p_patch} ] ; then
+if ([ ! -z ${p_patch} ] && [ $(cat $TMP3| wc -l) -gt 0 ]) ; then
   echo
   echo "Downloading the patches:"
   for URL in $(cat $TMP3)
@@ -142,6 +142,7 @@ if [ ! -z ${p_patch} ] ; then
     curl -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
     echo "$fname completed with status: $?"
   done
-  rm $TMP3 >/dev/null 2>&1
 fi
+rm $TMP3 >/dev/null 2>&1
 rm $COOK >/dev/null 2>&1
+
