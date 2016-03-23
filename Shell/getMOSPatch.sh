@@ -106,6 +106,7 @@ do
       done
 
 rm $TMP1 >/dev/null 2>&1
+touch $TMP3
 
     if [ `cat $TMP2 | wc -l` -gt 0 ] ; then
       if [ `cat $TMP2 | wc -l` -eq 1 ] && [ $protpatches -eq 0 ] ; then
