@@ -21,7 +21,7 @@ col avg_time_ms for 999999999.999
 BREAK ON inst SKIP 1
 select instance_number inst, to_char(time,'DD.MM.YYYY HH24:MI:SS') time, event_name,  sum(delta_total_waits) total_waits, round(sum(delta_time_waited/1000000),3) total_time_s, round(sum(delta_time_waited)/decode(sum(delta_total_waits),0,null,sum(delta_total_waits))/1000,3) avg_time_ms from 
     (select hse.instance_number, hse.snap_id, 
-      trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24 time,
+      trunc(sysdate-&days_history+1)+trunc((cast(hs.end_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24 time,
       EVENT_NAME,
       (lead(TOTAL_WAITS,1) over(partition by hse.instance_number, hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id))-TOTAL_WAITS delta_total_waits,
       (lead(TIME_WAITED_MICRO,1) over(partition by hse.instance_number, hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id))-TIME_WAITED_MICRO delta_time_waited
