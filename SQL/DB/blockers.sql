@@ -1,3 +1,6 @@
+-- Author:             Maris Elsins (elmaris@gmail.com), 2016
+-- Copyright:          (c) Maris Elsins - https://me-dba.com - All rights reserved.
+-- Note:               The script displays the blockers' tree and lets quickly identify the root blocker 
 with sessions as (select /* materialize */ * from gv$session)
 select lpad('#',lvl-1,'#')||to_char(lvl) lvl, inst_id,
       sid, serial#, 'alter system disconnect session '''||sid||','||serial#||''' immediate;' kill_stm,

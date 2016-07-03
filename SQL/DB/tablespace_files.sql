@@ -1,4 +1,5 @@
-set pages 50000 lines 240 ver off
+-- Author:             Maris Elsins (elmaris@gmail.com), 2016
+-- Copyright:          (c) Maris Elsins - https://me-dba.com - All rights reserved.set pages 50000 lines 240 ver off
 col file_name for a80
 col ID for 999
 COLUMN DUMMY1 NOPRINT;
@@ -11,11 +12,9 @@ select 1 dummy1,
        d.tablespace_name, 
        t.block_size, 
        d.autoextensible, 
-       -- d.blocks blocks, 
        d.blocks*t.block_size/1024/1024 current_mb, 
        decode(d.autoextensible, 'YES', d.maxblocks, d.blocks) maxblocks, 
        decode(d.autoextensible, 'YES', d.maxblocks, d.blocks)*t.block_size/1024/1024 max_mb, 
-       --d.increment_by increment_by, 
        d.increment_by*t.block_size/1024/1024 increment_mb, 
        d.status, 
        d.online_status online_status

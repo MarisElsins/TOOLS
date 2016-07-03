@@ -1,3 +1,5 @@
+-- Author:             Maris Elsins (elmaris@gmail.com), 2016
+-- Copyright:          (c) Maris Elsins - https://me-dba.com - All rights reserved.
 set pages 50000 lines 200
 col bs for a3
 select tbl.tablespace_name,
