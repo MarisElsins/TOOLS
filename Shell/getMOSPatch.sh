@@ -6,9 +6,16 @@
 # getMOSPatch.sh patch=patchnum_1[,patchnum_n]* [download=all] [regexp=...]# Use to download one or more patches. If "download=all" is set all patches will be downloaded without user interaction, you can also define regular expressen by passing regexp to filter the patch filenames.
 # v1.0 Initial version
 # v1.1 Added support for multipart patches, previously these were simply ignored.
+# v1.2 This version of getMOSPatch is now obsolete. Use https://github.com/MarisElsins/getMOSPatch/raw/master/getMOSPatch.jar instead
 
 # exit on the first error
 set -e
+
+echo 
+echo "This version of getMOSPatch is obsolete" 
+echo "Download getMOSPatch V2 from: https://github.com/MarisElsins/getMOSPatch/raw/master/getMOSPatch.jar"
+echo "Check the README for the new version here: https://github.com/MarisElsins/getMOSPatch/blob/master/README.md"
+echo
 
 # Setting some variables for the files I'll operati with
 PREF=`basename $0`
