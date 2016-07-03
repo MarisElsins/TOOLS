@@ -1,5 +1,7 @@
--- Maris Elsins, 2016
--- Usage: @rt_wait_perf "waitevent", after which you just heel hitting "/" to re-run the last query
+-- Author:             Maris Elsins (elmaris@gmail.com), 2016
+-- Copyright:          (c) Maris Elsins - https://me-dba.com - All rights reserved.
+-- Usage:              @rt_wait_perf "waitevent", after which you just keep hitting "/" to re-run the last query
+-- Note:               The script can be used to observe the wait event perfomrance online for the current database instance
 -- Example:
 --   SQL> @rt_wait_perf "log file sync"
 --   
@@ -30,8 +32,8 @@ select to_char(systimestamp,'DD.MM.YYYY HH24:MI:SSXFF') TSTAMP,
        event, 
        to_char(TOTAL_WAITS) TOTAL_WAITS, 
        to_char(TIME_WAITED_MICRO) TIME_WAITED_MICRO, 
-       TOTAL_WAITS-&&v_wts D_WTS, 
-       TIME_WAITED_MICRO-&&v_twm D_TWM, 
-       round((TIME_WAITED_MICRO-&&v_twm)/decode(TOTAL_WAITS-&&v_wts,0,null,TOTAL_WAITS-&&v_wts)/1000,3) D_AVG_MS_WT 
+       sum(TOTAL_WAITS)-&&v_wts D_WTS, 
+       (TIME_WAITED_MICRO)-&&v_twm D_TWM, 
+       round((sum(TIME_WAITED_MICRO)-&&v_twm)/decode(sum(TOTAL_WAITS)-&&v_wts,0,null,sum(TOTAL_WAITS)-&&v_wts)/1000,3) D_AVG_MS_WT 
 from v$system_event 
 where event='&&v_event';
