@@ -15,6 +15,7 @@ echo
 echo "This version of getMOSPatch is obsolete" 
 echo "Download getMOSPatch V2 from: https://github.com/MarisElsins/getMOSPatch/raw/master/getMOSPatch.jar"
 echo "Check the README for the new version here: https://github.com/MarisElsins/getMOSPatch/blob/master/README.md"
+echo "Read my blog post about it here: http://bit.ly/getMOSPatchV2"
 echo
 
 # Setting some variables for the files I'll operati with
