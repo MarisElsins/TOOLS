@@ -19,10 +19,10 @@ select to_char(time,'DD.MM.YYYY HH24:MI:SS') time, stat_name,  sum(delta_value) 
         stat_name,
         value,
         value-(lag(value,1) over(partition by hs.startup_time, stat_name order by hss.snap_id)) delta_value
-    from dba_hist_sysstat hss, dba_hist_snapshot hs
+    from dba_hist_sys_time_model hss, dba_hist_snapshot hs
     where hss.snap_id=hs.snap_id 
         and hss.instance_number=hs.instance_number
         and hs.begin_interval_time>=trunc(sysdate)-&days_history+1
         and hss.stat_name like '&stat_name') 
 group by time, stat_name
-order by 2, to_date(time,'DD.MM.YYYY HH24:MI:SS');
+order by to_date(time,'DD.MM.YYYY HH24:MI:SS'), 1;
