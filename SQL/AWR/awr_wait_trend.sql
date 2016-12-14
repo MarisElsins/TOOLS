@@ -19,8 +19,8 @@ select to_char(time,'DD.MM.YYYY HH24:MI:SS') time, event_name,  sum(delta_total_
     (select hse.snap_id, 
       trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24 time,
       EVENT_NAME,
-      TOTAL_WAITS-(lead(TOTAL_WAITS,1) over(partition by hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id)) delta_total_waits,
-      TIME_WAITED_MICRO-(lag(TIME_WAITED_MICRO,1) over(partition by hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id)) delta_time_waited
+      (lead(TOTAL_WAITS,1) over(partition by hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id))-TOTAL_WAITS delta_total_waits,
+      (lead(TIME_WAITED_MICRO,1) over(partition by hs.STARTUP_TIME, EVENT_NAME order by hse.snap_id))-TIME_WAITED_MICRO delta_time_waited
    from DBA_HIST_SYSTEM_EVENT hse, DBA_HIST_SNAPSHOT hs
    where hse.snap_id=hs.snap_id
       and hs.begin_interval_time>=trunc(sysdate)-&days_history+1
