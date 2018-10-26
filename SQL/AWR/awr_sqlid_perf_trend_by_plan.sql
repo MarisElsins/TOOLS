@@ -29,7 +29,7 @@ col disk_reads for 999999999999.999
 col direct_writes for 999999999999.999
 BREAK ON inst SKIP 1
 select hss.instance_number inst,
-    to_char(trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24,'dd.mm.yyyy hh24:mi:ss') time,
+    to_char(trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24,'yyyy-dd-mm hh24:mi:ss') time,
     plan_hash_value,
     sum(hss.executions_delta) executions,
     round(sum(hss.elapsed_time_delta)/1000000,3) elapsed_time_s,
