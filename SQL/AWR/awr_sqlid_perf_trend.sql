@@ -7,7 +7,7 @@
 -- v1.2 - Making it database-wide, as instance-wise breaks the readability
 --      - Ading total elapsed time as the rest of stats are per-sql
 --      - Introduced gaps for the time slots when the execution didn't happen at all
--- v1.3 - Change of the datae format to ISO 8601
+-- v1.3 - Change of the date format to ISO 8601
 --
 -- Example:
 -- Show sql_id=54dtvn6dmmyh6 execution statistics for past 3 days with reporing intervals of 4 hours
