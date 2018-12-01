@@ -54,7 +54,7 @@ col javexec_time_s_1exec for 9999999.999
 col buffer_gets_1exec for 999999999999.999
 col disk_reads_1exec for 999999999999.999
 col direct_writes_1exec for 999999999999.999
-select to_char(trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24,'dd.mm.yyyy hh24:mi:ss') time,
+select to_char(trunc(sysdate-&days_history+1)+trunc((cast(hs.begin_interval_time as date)-(trunc(sysdate-&days_history+1)))*24/(&interval_hours))*(&interval_hours)/24,'yyyy-mm-dd hh24:mi:ss') time,
     nvl(sum(hss.executions_delta),0) executions,
     round(sum(hss.elapsed_time_delta)/1000000,3) elapsed_time_s_total,
     round(sum(hss.elapsed_time_delta)/1000000/decode(sum(hss.executions_delta),0,null,sum(hss.executions_delta)),3) elapsed_time_s_1exec,
