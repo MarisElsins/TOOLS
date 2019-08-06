@@ -61,7 +61,7 @@ perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
 echo "user=$mosUser" >> ~/.wgetrc
 echo "password=$mosPass" >> ~/.wgetrc
 set +e
-wget --secure-protocol=TLSv1 --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
+wget --save-cookies=$COOK --keep-session-cookies --no-check-certificate "https://updates.oracle.com/Orion/SimpleSearch/switch_to_saved_searches" -O $TMP1 -o $TMP2 --no-verbose
 RESULT=$?
 perl -pi -e 'if(/^user=/){undef $_}' ~/.wgetrc
 perl -pi -e 'if(/^password=/){undef $_}' ~/.wgetrc
@@ -78,7 +78,7 @@ set -e
 # This part fetches the simple search form from mos and parses all Platform and Language codes
 if [ ! -f $CFG ] || [ "$p_reset" == "yes" ] ; then
   echo; echo Getting the Platform/Language list
-  wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
+  wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SavedSearches/switch_to_simple" -O $TMP1 -q
   echo "Available Platforms and Languages:"
   grep -A999 "<select name=plat_lang" $TMP1 | grep "^<option"| grep -v "\-\-\-" | awk -F "[\">]" '{print $2" - "$4}' > $TMP2
   cat $TMP2
@@ -109,7 +109,7 @@ do
     echo
     echo "Getting list of files for patch $pp_patch for \"${PLDESC}\""
 
-    wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
+    wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${pp_patch}&plat_lang=${PLATLANG}" -O $TMP1 -q
     grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" > $TMP2
     if [ `grep "javascript:showDetails(\"/Orion/PatchDetails/process_form" $TMP1 | grep -e "title=\"Download Password Protected Patch"  | wc -l` -gt 0 ]
     then
@@ -118,7 +118,7 @@ do
     fi
     grep "javascript:showDetails(\"/Orion/PatchDetails/process_form" $TMP1 | grep -v -e "title=\"Download Password Protected Patch" -e "Download/process_form" -e  "class=\"OraTableCellNumber" -e "title=\"Translation Required" | sed 's/ //g' | sed "s/.*href='javascript:showDetails(\"//g" | sed "s/\".*//g" | while read LINE
       do
-        wget --secure-protocol=TLSv1 --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/${LINE}" -O $TMP1 -q
+        wget --no-check-certificate --load-cookies=$COOK "https://updates.oracle.com/${LINE}" -O $TMP1 -q
         grep "Download/process_form" $TMP1 | egrep "${p_regexp}" | sed 's/ //g' | sed "s/.*href=\"//g" | sed "s/\".*//g" >> $TMP2
       done
 
@@ -166,11 +166,11 @@ if ([ ! -z ${p_patch} ] && [ $(cat $TMP3| wc -l) -gt 0 ]) ; then
     if [ -f $fname ]; then
       echo "Note: File $fname exist" ;
       echo "Checking if file $fname has changed on server ..." ;
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure -z $fname --output $fname -L "$URL"
+      curl -R -b $COOK -c $COOK --insecure -z $fname --output $fname -L "$URL"
       echo "$fname completed with status: $?"
     else
       echo "Downloading file $fname ..."
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname -L "$URL"
+      curl -R -b $COOK -c $COOK --insecure --output $fname -L "$URL"
       echo "$fname completed with status: $?"
     fi
     
@@ -179,7 +179,7 @@ if ([ ! -z ${p_patch} ] && [ $(cat $TMP3| wc -l) -gt 0 ]) ; then
     if [ $p_readme ] && [ $p_readme == "yes" ]; then
       echo
       echo "Downloading readme file ..."
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
+      curl -R -b $COOK -c $COOK --insecure --output $fname_.readme -L "https://updates.oracle.com/Orion/Services/download?type=readme&bugfix_name=$pp_patch"
       if [ -f $fname_.readme ]; then
         if [ "`file -b $fname_.readme`" == "HTML document text" ]; then
           mv $fname_.readme $fname_.html
@@ -193,7 +193,7 @@ if ([ ! -z ${p_patch} ] && [ $(cat $TMP3| wc -l) -gt 0 ]) ; then
     if [ $p_xml ] && [ $p_xml == "yes" ]; then
       echo
       echo "Downloading xml file ..."
-      curl -R -b $COOK -c $COOK --tlsv1 --insecure --output $fname_.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
+      curl -R -b $COOK -c $COOK --insecure --output $fname_.xml -L "https://updates.oracle.com/Orion/Services/search?bug=$pp_patch"
     fi
     
   done
